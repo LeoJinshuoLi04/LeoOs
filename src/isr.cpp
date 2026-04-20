@@ -22,10 +22,14 @@ extern "C" void isr_handler(registers regs) {
         uint8_t scancode = inb(0x60);
         if (scancode & 0x80) {
             // Handle key release if necessary (e.g., releasing Shift)
+        }else if(scancode == 0x0E){
+            global_terminal->backspace();
+        }else if(scancode == 0x1C) {
+            global_terminal->execute();
         } else {
             unsigned char c = kbd_us[scancode];
             if (c > 0 && global_terminal) {
-                global_terminal->put_char(c);
+                global_terminal->put_user_char(c);
             }
         }
     } else if (regs.int_no == 32) {

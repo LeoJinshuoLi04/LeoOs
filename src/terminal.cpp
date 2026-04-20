@@ -7,6 +7,17 @@ Terminal::Terminal() {
     col = 0;
     color = 0x0F; // White on Black
     buffer = (uint16_t*) 0xB8000;
+    shell = nullptr;
+    shellBuffer = "";
+    clear();
+}
+
+Terminal::Terminal(Shell& shell) : shell(&shell){
+    row = 0;
+    col = 0;
+    color = 0x0F; // White on Black
+    buffer = (uint16_t*) 0xB8000;
+    shellBuffer = "";
     clear();
 }
 
@@ -14,6 +25,9 @@ void Terminal::clear() {
     for (size_t i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
         buffer[i] = make_vga_entry(' ', color);
     }
+    shellBuffer = "";
+    row = 0;
+    col = 0;
     updateCursor();
 }
 
@@ -48,6 +62,50 @@ void Terminal::put_char(char c) {
         row = VGA_HEIGHT - 1;
     }
     updateCursor();
+}
+
+void Terminal::put_user_char(char c){
+    put_char(c);
+    shellBuffer.push_back(c);
+}
+
+void Terminal::backspace(){
+    if(shellBuffer.size() > 0){
+        shellBuffer.pop_back();
+        if(col == 0){
+            if(row > 0){
+                row --;
+                col = VGA_WIDTH - 1;
+            }
+        }else{
+            col--;
+        }
+        buffer[row* VGA_WIDTH + col] = make_vga_entry(' ', color);
+    }
+    updateCursor();
+}
+
+void Terminal::execute(){
+    write("\n");
+    shell->execute(shellBuffer);
+    shellBuffer = "";
+}
+
+void Terminal::write_dec(int n) {
+    if (n == 0) {
+        write("0");
+        return;
+    }
+
+    char buf[11]; // Max length of a 32-bit int + null
+    int i = 10;
+    buf[i] = '\0';
+
+    while (n > 0) {
+        buf[--i] = (n % 10) + '0';
+        n /= 10;
+    }
+    write(&buf[i]);
 }
 
 void Terminal::write(const char* data) {
