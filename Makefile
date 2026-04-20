@@ -1,25 +1,58 @@
-AS = i686-elf-as
+# Compiler / Linker Definitions
+AS  = i686-elf-as
 CPP = i686-elf-g++
-LD = i686-elf-gcc
+LD  = i686-elf-gcc
 
-CPPFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti
-LDFLAGS = -T src/linker.ld -ffreestanding -O2 -nostdlib -lgcc
+# Directories
+SRC_DIR  := src
+STR_DIR  := structures
+BUILD_DIR := build
 
-# Create the build directory and compile everything
-all:
-	mkdir -p build
-	$(AS) src/boot.s -o build/boot.o
-	$(AS) src/interrupts.s -o build/interrupts.o
-	$(CPP) $(CPPFLAGS) -c src/terminal.cpp -o build/terminal.o
-	$(CPP) $(CPPFLAGS) -c src/kernel.cpp -o build/kernel.o
-	$(CPP) $(CPPFLAGS) -c src/gdt.cpp -o build/gdt.o
-	$(CPP) $(CPPFLAGS) -c src/isr.cpp -o build/isr.o
-	$(CPP) $(CPPFLAGS) -c src/idt.cpp -o build/idt.o
-	$(CPP) $(CPPFLAGS) -c src/pic.cpp -o build/pic.o
-	$(LD) $(LDFLAGS) -o build/myos.bin build/boot.o build/interrupts.o build/terminal.o build/kernel.o build/gdt.o build/isr.o build/idt.o build/pic.o
+# 1. FIND ALL SOURCE FILES
+# This looks recursively for every .cpp and .s file in your folders
+CPP_SOURCES := $(shell find $(SRC_DIR) $(STR_DIR) -name '*.cpp')
+ASM_SOURCES := $(shell find $(SRC_DIR) -name '*.s')
+
+# 2. GENERATE OBJECT FILE LIST
+# This maps 'structures/string/string.cpp' to 'build/structures/string/string.o'
+OBJ := $(CPP_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+OBJ += $(ASM_SOURCES:%.s=$(BUILD_DIR)/%.o)
+
+# 3. INCLUDE PATHS
+# Finds all directories in src and structures to allow shorthand includes
+INC_DIRS  := $(shell find $(SRC_DIR) $(STR_DIR) -type d)
+INC_FLAGS := $(foreach dir, $(INC_DIRS), -I$(dir))
+
+# Flags
+# Added -I. to allow includes relative to the root if needed
+CPPFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti $(INC_FLAGS) -I.
+LDFLAGS  = -T src/linker.ld -ffreestanding -O2 -nostdlib -lgcc
+
+# --- BUILD RULES ---
+
+all: $(BUILD_DIR)/myos.bin
+
+# Link the kernel binary
+$(BUILD_DIR)/myos.bin: $(OBJ)
+	@echo "Linking $@"
+	@$(LD) $(LDFLAGS) -o $@ $(OBJ)
+
+# Pattern rule for C++ files
+$(BUILD_DIR)/%.o: %.cpp
+	@mkdir -p $(@D)
+	@echo "Compiling $<"
+	@$(CPP) $(CPPFLAGS) -c $< -o $@
+
+# Pattern rule for Assembly files
+$(BUILD_DIR)/%.o: %.s
+	@mkdir -p $(@D)
+	@echo "Assembling $<"
+	@$(AS) $< -o $@
 
 run: all
 	qemu-system-i386 -kernel build/myos.bin
 
 clean:
-	rm -rf build
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean run
