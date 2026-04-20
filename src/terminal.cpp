@@ -14,6 +14,7 @@ void Terminal::clear() {
     for (size_t i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++) {
         buffer[i] = make_vga_entry(' ', color);
     }
+    updateCursor();
 }
 
 void Terminal::updateCursor() {
@@ -53,7 +54,6 @@ void Terminal::write(const char* data) {
     for (size_t i = 0; data[i] != '\0'; i++) {
         put_char(data[i]);
     }
-    updateCursor();
 }
 
 uint16_t Terminal::make_vga_entry(unsigned char uc, uint8_t color) {
