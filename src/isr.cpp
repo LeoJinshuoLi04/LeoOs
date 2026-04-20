@@ -13,25 +13,24 @@ struct registers {
 // src/isr.cpp
 #include "io.hpp"
 #include "terminal.hpp"
+#include "keyboard.hpp"
 
 extern Terminal* global_terminal;
 
 extern "C" void isr_handler(registers regs) {
     if (regs.int_no == 33) {
         uint8_t scancode = inb(0x60);
-        
-        // Just a test: print 'A' if the 'A' key (0x1E) is pressed
-        if (scancode == 0x1E) {
-            if (global_terminal) global_terminal->write("A");
-        }
 
-        // --- THE MOST IMPORTANT PART ---
-        // Send EOI to PIC1 (and PIC2 if it was IRQ 8-15)
-        // Without this, no more interrupts will ever fire!
-        if (regs.int_no >= 40) {
-            outb(0xA1, 0x20); // Slave
+        // If the top bit is set, the key was just released
+        if (scancode & 0x80) {
+            // Handle key release if necessary (e.g., releasing Shift)
+        } else {
+            // Key was pressed
+            unsigned char c = kbd_us[scancode];
+            if (c > 0 && global_terminal) {
+                global_terminal->put_char(c);
+            }
         }
-        outb(0x20, 0x20);     // Master
     } else if (regs.int_no == 32) {
       //do nothing.
     }
