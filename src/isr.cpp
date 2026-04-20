@@ -20,12 +20,9 @@ extern Terminal* global_terminal;
 extern "C" void isr_handler(registers regs) {
     if (regs.int_no == 33) {
         uint8_t scancode = inb(0x60);
-
-        // If the top bit is set, the key was just released
         if (scancode & 0x80) {
             // Handle key release if necessary (e.g., releasing Shift)
         } else {
-            // Key was pressed
             unsigned char c = kbd_us[scancode];
             if (c > 0 && global_terminal) {
                 global_terminal->put_char(c);

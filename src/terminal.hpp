@@ -23,6 +23,7 @@ public:
 private:
     uint16_t make_vga_entry(unsigned char uc, uint8_t color);
     void scroll();
+    void updateCursor();
     size_t row, col;
     uint8_t color;
     uint16_t* buffer;
