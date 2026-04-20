@@ -1,54 +1,53 @@
-my-os/
-├── src/
-│ ├── boot.s # Assembly entry point (Multiboot header)
-│ ├── kernel.cpp # Your C++ logic
-│ └── linker.ld # Tells the linker where to put code in memory
-├── build/ # Where compiled objects go
-└── Makefile # To automate the build/run process
+LeoOS Kernel
+LeoOS is a minimalist 32-bit x86 kernel written in C++ and Assembly. The project focuses on building a stable foundation for a protected-mode operating system, implementing core CPU data structures and hardware abstraction layers.
 
-🛠 LeoOS: Project Progress Recap
+Technical Overview
+Boot and Memory Management
+Multiboot Compliance: The kernel utilizes a custom Assembly entry point compatible with the Multiboot specification, allowing it to be loaded by GRUB or QEMU.
 
-1. The Bootloader Handshake (The Entry)
-   Component: boot.s (Assembly) & linker.ld
+Global Descriptor Table (GDT): Configured a flat 32-bit memory model. This establishes kernel-level code and data segments, which are necessary for memory protection and future user-mode transitions.
 
-Purpose: \* Defines the Multiboot Header so QEMU/GRUB recognizes the file as a kernel.
+Linker Configuration: A custom linker script manages the physical and virtual address layout, ensuring the Multiboot header resides within the first 8KB of the binary.
 
-Sets up the Stack Pointer (esp), which is the literal foundation required for C++ functions to execute.
+Hardware Abstraction
+VGA Text Driver: An object-oriented C++ driver for the 0xB8000 video buffer. It supports character-attribute mapping and features a software-based scrolling algorithm to handle vertical overflow.
 
-The Linker Script ensures the kernel is loaded at the 1MB mark in physical memory, keeping it away from BIOS-reserved areas.
+Port I/O: Implementation of inline assembly wrappers for inb and outb instructions, enabling safe communication with motherboard hardware peripherals.
 
-2. VGA Text Driver (The Voice)
-   Component: terminal.cpp & terminal.hpp
+Interrupt Architecture
+Interrupt Descriptor Table (IDT): A 256-entry table that facilitates the mapping of hardware IRQs and software exceptions to specific handler routines.
 
-Purpose: \* Provides the first abstraction layer over raw hardware.
+Interrupt Service Routines (ISR): Assembly stubs serve as low-level bridges, preserving CPU state and registers before delegating execution to high-level C++ logic.
 
-Manages the VGA Memory Buffer at 0xB8000.
+PIC Remapping: The Programmable Interrupt Controllers (8259A) have been remapped to shift hardware interrupts (IRQ 0-15) to the 0x20-0x2F range, preventing conflicts with CPU-internal exceptions.
 
-Implements Software Scrolling by shifting memory blocks when the screen fills up.
+Fault Tolerance: Includes specialized handlers for synchronous CPU exceptions (e.g., Division by Zero) to ensure system stability during runtime errors.
 
-Converts ASCII characters into the 16-bit "Character + Attribute" format the hardware expects.
+Project Structure
+src/boot.s: Bootstrapping logic and stack initialization.
 
-3. Global Descriptor Table - GDT (The Security Guard)
-   Component: gdt.cpp & gdt.hpp
+src/interrupts.s: Low-level assembly wrappers for the interrupt stack.
 
-Purpose: \* Defines how the CPU perceives memory.
+src/terminal.cpp: Implementation of the VGA text-mode driver.
 
-Sets up "Segments" for Kernel Code and Kernel Data.
+src/gdt.cpp / src/idt.cpp: CPU table initialization and gate configuration.
 
-While we use a "Flat Memory Model" (0 to 4GB), this setup is mandatory for the CPU to enter a stable Protected Mode and prepares the system for future User Space isolation (Ring 3).
+src/pic.cpp: Logic for remapping and managing the PIC.
 
-4. Interrupt Descriptor Table - IDT (The Nervous System)
-   Component: idt.cpp & idt.hpp
+src/kernel.cpp: Kernel entry point and hardware initialization sequence.
 
-Purpose: \* Creates a mapping between specific events and handler functions.
+Building and Execution
+Prerequisites
+i686-elf-gcc cross-compiler toolchain
 
-Tells the CPU exactly where to jump when a "Software Exception" (like Division by Zero) or a "Hardware Interrupt" occurs.
+GNU Make
 
-Acts as the bridge between asynchronous hardware events and your synchronous C++ code.
+QEMU (i386)
 
-5. ISR Handling & Assembly Stubs (The Safety Net)
-   Component: interrupts.s & isr.cpp
+Usage
+To compile the kernel and launch the environment:
 
-Purpose: \* Provides the Assembly Wrappers that save the current state of the CPU (registers) before jumping into C++.
+Bash
 
-Implements the first Exception Handler, allowing the OS to catch crashes (like Division by Zero) gracefully instead of silently rebooting.
+make clean
+make run
