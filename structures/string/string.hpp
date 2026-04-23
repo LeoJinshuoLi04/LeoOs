@@ -9,6 +9,7 @@ class string {
     string(const string& other);
     string& operator=(const string& other);
     bool operator==(const string& other) const;
+    char& operator[](int index);
 
     void push_back(char c);
     void pop_back();

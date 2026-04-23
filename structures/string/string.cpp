@@ -38,6 +38,13 @@ bool string::operator==(const string& other) const {
   return true;
 };
 
+char& string::operator[](int index){
+  static char dummy = ' ';
+  if(index < 0 || index >= length) return dummy;
+  return mem[index];
+}
+
+
 void string::push_back(char c){
   if(length < MAX_SIZE - 1){
     mem[length] = c;
