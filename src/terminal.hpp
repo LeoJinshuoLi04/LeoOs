@@ -25,6 +25,7 @@ public:
     void put_user_char(char c);
     void write(const char* data);
     void write_dec(int n);
+    void write_hex(int n);
     void execute();
 private:
     uint16_t make_vga_entry(unsigned char uc, uint8_t color);

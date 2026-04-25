@@ -108,6 +108,16 @@ void Terminal::write_dec(int n) {
     write(&buf[i]);
 }
 
+void Terminal::write_hex(int n){
+    string hex = "0x";
+    string translations = "0123456789ABCDEF";
+    while(n){
+        hex.push_back(translations[n%16]);
+        n/=16;
+    }
+    write(hex.cstr());
+}
+
 void Terminal::write(const char* data) {
     for (size_t i = 0; data[i] != '\0'; i++) {
         put_char(data[i]);
