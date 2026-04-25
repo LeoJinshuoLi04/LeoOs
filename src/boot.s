@@ -26,12 +26,17 @@ _start:
     # Set the stack pointer
     mov $stack_top, %esp
 
-    # Call the C++ kernel_main
-    # We removed the 'extern' line entirely. 
-    # The linker will resolve 'kernel_main' later.
-    push %ebp
-    mov %esp, %ebp
+    # reset ebp to 0
+    xor %ebp, %ebp
+
+    # 3. Push arguments for kernel_main(magic, mbi_ptr)
+    # The Multiboot spec says: magic is in EAX, pointer is in EBX
+    # C Calling Convention (cdecl) pushes arguments from right to left
     
+    push %ebx      # Argument 2: Multiboot Information Structure pointer
+    push %eax      # Argument 1: Magic Number (0x2BADB002)
+
+    # 4. Enter the C++ code
     call kernel_main
 
     # If the kernel ever returns, just hang the CPU

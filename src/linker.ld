@@ -5,6 +5,8 @@ SECTIONS
     /* The bootloader will look at this address to load the kernel */
     . = 1M;
 
+     _kernel_start = .;
+
     /* First put the multiboot header, then the code */
     .text BLOCK(4K) : ALIGN(4K)
     {
@@ -30,4 +32,6 @@ SECTIONS
         *(COMMON)
         *(.bss)
     }
+
+    _kernel_end = .;
 }
