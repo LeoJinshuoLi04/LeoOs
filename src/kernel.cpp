@@ -4,10 +4,18 @@
 #include "pic.hpp"
 #include "shell.hpp"
 #include "multiboot.hpp"
+#include "pmm.hpp"
 
 Terminal* global_terminal = nullptr; // Global pointer
 
 extern "C" void enable_interrupts();
+extern "C" uint32_t _kernel_start;
+extern "C" uint32_t _kernel_end;
+
+//memory addresses
+uint32_t kernel_start = (uint32_t)&_kernel_start;
+uint32_t kernel_end = (uint32_t)&_kernel_end;
+uint32_t free_ram_start = kernel_end + 4096;
 
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     Shell shell;
@@ -17,10 +25,13 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
         T.write("Error: Invalid Magic Number\n");
         return;
     }
-    uint32_t total_mb = (mbi->mem_upper / 1024) + 1;
+    PMM pmm;
+    pmm.init(mbi, &kernel_end);
     T.write("Leo OS: ");
-    T.write_dec(total_mb);
-    T.write(" MB\n>> ");
+    T.write_dec(pmm.get_used());
+    T.write("/");
+    T.write_dec(pmm.get_capacity());
+    T.write(" B RAM Used\n");
     GDT gdt;
     gdt.load();
     IDT idt;
