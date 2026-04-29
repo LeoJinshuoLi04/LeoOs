@@ -24,17 +24,64 @@ PIC Remapping: The Programmable Interrupt Controllers (8259A) have been remapped
 Fault Tolerance: Includes specialized handlers for synchronous CPU exceptions (e.g., Division by Zero) to ensure system stability during runtime errors.
 
 Project Structure
-src/boot.s: Bootstrapping logic and stack initialization.
-
-src/interrupts.s: Low-level assembly wrappers for the interrupt stack.
-
-src/terminal.cpp: Implementation of the VGA text-mode driver.
-
-src/gdt.cpp / src/idt.cpp: CPU table initialization and gate configuration.
-
-src/pic.cpp: Logic for remapping and managing the PIC.
-
-src/kernel.cpp: Kernel entry point and hardware initialization sequence.
+LeoOS/
+├── Makefile                # Your shiny new recursive build system
+├── grub.cfg                # GRUB bootloader configuration
+│
+├── build/                  # Generated objects and the final .bin / .iso
+│
+└── src/                    # All Source Code
+    │
+    ├── arch/               # Architecture-specific code (Hardware tied)
+    │   └── i386/           # 32-bit x86 specific files
+    │       ├── linker.ld   # Linker script
+    │       ├── boot.s      # Multiboot header and _start
+    │       ├── gdt.s       # Assembly stub for GDT loading
+    │       ├── interrupt.s # Assembly stubs for ISRs (pusha, iret)
+    │       ├── gdt.cpp     # Global Descriptor Table setup
+    │       ├── idt.cpp     # Interrupt Descriptor Table setup
+    │       ├── pic.cpp     # 8259 Programmable Interrupt Controller (Remap)
+    │       └── ports.cpp   # inb, outb (I/O port communication)
+    │
+    ├── kernel/             # Architecture-agnostic core OS logic
+    │   ├── main.cpp        # kernel_main()
+    │   ├── memory/         
+    │   │   ├── pmm.cpp     # Physical Memory Manager (Bitmap)
+    │   │   ├── vmm.cpp     # Virtual Memory Manager (Paging)
+    │   │   └── heap.cpp    # kmalloc/kfree (Dynamic memory)
+    │   ├── cpu/
+    │   │   └── isr.cpp     # High-level C++ interrupt dispatcher
+    │   ├── task/           # Scheduler (added later)
+    │   │   ├── process.cpp # Process Control Blocks (PCB)
+    │   │   └── sched.cpp   # Round-robin or priority scheduler
+    │   └── syscall/        # System Calls (added later)
+    │       └── syscall.cpp # Ring 3 to Ring 0 gateway
+    │
+    ├── drivers/            # Hardware drivers (Ring 0 for now, user space later)
+    │   ├── vga/
+    │   │   ├── text.cpp    # Text mode terminal (what you have now)
+    │   │   └── fb.cpp      # Framebuffer graphics (added later)
+    │   ├── input/
+    │   │   ├── kbd.cpp     # PS/2 Keyboard
+    │   │   └── mouse.cpp   # PS/2 Mouse
+    │   └── timer/
+    │       └── pit.cpp     # Programmable Interval Timer (for scheduling)
+    │
+    ├── lib/                # "klibc" - Kernel's version of standard libraries
+    │   ├── string.cpp      # memcpy, memset, strlen
+    │   ├── memory.cpp      # placement new operator overloads
+    │   └── structures/     # Your custom data structures
+    │       ├── vector.hpp
+    │       └── bitmap.hpp  
+    │
+    └── user/               # User-space programs (Ring 3 - Added much later)
+        ├── libc/           # A minimal standard library for your apps
+        ├── apps/
+        │   ├── init/       # The first user process (starts the system)
+        │   └── shell/      # The interactive command line
+        └── gui/
+            ├── wm.cpp      # Window Manager
+            └── desktop.cpp # The graphical desktop environment
 
 Building and Execution
 Prerequisites
