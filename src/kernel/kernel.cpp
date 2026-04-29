@@ -1,9 +1,9 @@
 #include "terminal.hpp"
-#include "gdt.hpp"
-#include "idt.hpp"
-#include "pic.hpp"
+#include "src/arch/i386/GlobalDescriptorTable/gdt.hpp"
+#include "src/arch/i386/InterruptDescriptorTable/idt.hpp"
+#include "src/arch/i386/ProgrammableInterruptController/pic.hpp"
 #include "shell.hpp"
-#include "multiboot.hpp"
+#include "src/arch/i386/multiboot.hpp"
 #include "pmm.hpp"
 
 Terminal* global_terminal = nullptr; // Global pointer
@@ -25,20 +25,18 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
         T.write("Error: Invalid Magic Number\n");
         return;
     }
-    PMM pmm;
-    pmm.init(mbi, &kernel_end);
-    T.write("Leo OS: ");
-    T.write_dec(pmm.get_used());
-    T.write("/");
-    T.write_dec(pmm.get_capacity());
-    T.write(" B RAM Used\n");
+    // PMM pmm;
+    // pmm.init(mbi, &kernel_end);
+    // T.write("Leo OS: ");
+    // T.write_dec(pmm.get_used());
+    // T.write("/");
+    // T.write_dec(pmm.get_capacity());
+    // T.write(" B RAM Used\n");
     GDT gdt;
     gdt.load();
     IDT idt;
     idt.load();
     pic_remap();
     enable_interrupts();
-
-
     while(1);
 }

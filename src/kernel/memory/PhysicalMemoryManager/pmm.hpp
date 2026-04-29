@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "multiboot.hpp"
+#include "src/arch/i386/multiboot.hpp"
 
 class PMM {
 private:

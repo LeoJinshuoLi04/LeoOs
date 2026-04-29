@@ -11,7 +11,7 @@ struct registers {
 };
 
 // src/isr.cpp
-#include "io.hpp"
+#include "src/arch/i386/io.hpp"
 #include "terminal.hpp"
 #include "keyboard.hpp"
 

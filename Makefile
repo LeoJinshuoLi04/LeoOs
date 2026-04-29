@@ -26,7 +26,7 @@ INC_FLAGS := $(foreach dir, $(INC_DIRS), -I$(dir))
 # Flags
 # Added -I. to allow includes relative to the root if needed
 CPPFLAGS = -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti $(INC_FLAGS) -I.
-LDFLAGS  = -T src/linker.ld -ffreestanding -O2 -nostdlib -lgcc
+LDFLAGS  = -T src/arch/i386/linker.ld -ffreestanding -O2 -nostdlib -lgcc
 
 # --- BUILD RULES ---
 

@@ -1,4 +1,4 @@
-#include "io.hpp"
+#include "src/arch/i386/io.hpp"
 #include "pic.hpp"
 
 // PIC 1 (Master) ports
@@ -10,8 +10,8 @@
 
 void pic_remap() {
     // Save masks (what interrupts are currently disabled)
-    uint8_t a1 = inb(PIC1_DATA);
-    uint8_t a2 = inb(PIC2_DATA);
+    // uint8_t a1 = inb(PIC1_DATA);
+    // uint8_t a2 = inb(PIC2_DATA);
 
     // ICW1: Start initialization in cascade mode
     outb(PIC1_COMMAND, 0x11);

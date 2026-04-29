@@ -1,5 +1,5 @@
 #include "terminal.hpp"
-#include "io.hpp"
+#include "src/arch/i386/io.hpp"
 
 // Constructor: Initializes the terminal state
 Terminal::Terminal() {
