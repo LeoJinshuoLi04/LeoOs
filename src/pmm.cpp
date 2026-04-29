@@ -54,7 +54,8 @@ void PMM::set_region(uint32_t start, uint32_t len){
 }
 
 void* PMM::alloc_block(){
-  for (uint32_t i = 0; i < max_blocks / 32; i++) {
+  //start checking from last free block
+  for (uint32_t i = last_free_block; i < max_blocks / 32; i++) {
         // Optimization: If the whole uint32 is 0xFFFFFFFF, it's full; skip it
         if (bitmap[i] != 0xFFFFFFFF) {
             for (int j = 0; j < 32; j++) {
@@ -62,6 +63,7 @@ void* PMM::alloc_block(){
                 if (!test_bit(bit)) {
                     set_bit(bit);
                     used_blocks++;
+                    last_free_block = bit+1;
                     return (void*)(bit * PAGE_SIZE);
                 }
             }
@@ -92,9 +94,10 @@ void PMM::set_bit(uint32_t bit){
 };
 
 void PMM::clear_bit(uint32_t bit){
+  last_free_block = bit;
   bitmap[bit / 32] &= ~(1 << (bit % 32));
 };
 
-bool PMM::test_bit(uint32_t bit){
+bool PMM::test_bit(uint32_t bit) const {
   return bitmap[bit / 32] & (1 << (bit % 32));
 };

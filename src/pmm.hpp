@@ -8,6 +8,7 @@ private:
     uint32_t* bitmap;      // Pointer to the bit array
     uint32_t  max_blocks;  // Total number of 4KB blocks
     uint32_t  used_blocks; // Currently allocated blocks
+    uint32_t  last_free_block; // Optimization: Start searching for free blocks from here
 
 public:
     void init(multiboot_info* mbi, uint32_t* kernel_end);
@@ -25,5 +26,5 @@ public:
     // Internal helpers
     void set_bit(uint32_t bit);
     void clear_bit(uint32_t bit);
-    bool test_bit(uint32_t bit);
+    bool test_bit(uint32_t bit) const;
 };
