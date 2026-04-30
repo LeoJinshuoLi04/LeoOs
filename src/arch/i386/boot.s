@@ -44,12 +44,6 @@ _start:
 1:  hlt
     jmp 1b
 
-.global idt_load
-idt_load:
-    mov 4(%esp), %edx
-    lidt (%edx)
-    ret
-
 .global enable_interrupts
 enable_interrupts:
     sti
