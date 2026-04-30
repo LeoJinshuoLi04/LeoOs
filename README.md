@@ -14,8 +14,6 @@ Port I/O: Implementation of inline assembly wrappers for inb and outb instructio
 
 Interrupt Service Routines (ISR): Assembly stubs serve as low-level bridges, preserving CPU state and registers before delegating execution to high-level C++ logic.
 
-PIC Remapping: The Programmable Interrupt Controllers (8259A) have been remapped to shift hardware interrupts (IRQ 0-15) to the 0x20-0x2F range, preventing conflicts with CPU-internal exceptions.
-
 Fault Tolerance: Includes specialized handlers for synchronous CPU exceptions (e.g., Division by Zero) to ensure system stability during runtime errors.
 
 Project Structure
