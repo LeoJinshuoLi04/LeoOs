@@ -25,10 +25,7 @@ Fault Tolerance: Includes specialized handlers for synchronous CPU exceptions (e
 
 Project Structure
 LeoOS/
-├── Makefile                # Your shiny new recursive build system
-├── grub.cfg                # GRUB bootloader configuration
-│
-├── build/                  # Generated objects and the final .bin / .iso
+├── Makefile                
 │
 └── src/                    # All Source Code
     │
@@ -47,41 +44,41 @@ LeoOS/
     │   ├── main.cpp        # kernel_main()
     │   ├── memory/         
     │   │   ├── pmm.cpp     # Physical Memory Manager (Bitmap)
-    │   │   ├── vmm.cpp     # Virtual Memory Manager (Paging)
-    │   │   └── heap.cpp    # kmalloc/kfree (Dynamic memory)
+    │   │   ├── vmm.cpp     # (Pending) Virtual Memory Manager (Paging)
+    │   │   └── heap.cpp    # (Pending) kmalloc/kfree (Dynamic memory)
     │   ├── cpu/
-    │   │   └── isr.cpp     # High-level C++ interrupt dispatcher
-    │   ├── task/           # Scheduler (added later)
-    │   │   ├── process.cpp # Process Control Blocks (PCB)
-    │   │   └── sched.cpp   # Round-robin or priority scheduler
-    │   └── syscall/        # System Calls (added later)
-    │       └── syscall.cpp # Ring 3 to Ring 0 gateway
+    │   │   └── isr.cpp     # (Pending) High-level C++ interrupt dispatcher
+    │   ├── task/           # (Pending) Scheduler
+    │   │   ├── process.cpp # (Pending) Process Control Blocks (PCB)
+    │   │   └── sched.cpp   # (Pending) Round-robin or priority scheduler
+    │   └── syscall/        # System Calls
+    │       └── syscall.cpp # (Pending) Ring 3 to Ring 0 gateway
     │
     ├── drivers/            # Hardware drivers (Ring 0 for now, user space later)
     │   ├── vga/
-    │   │   ├── text.cpp    # Text mode terminal (what you have now)
-    │   │   └── fb.cpp      # Framebuffer graphics (added later)
+    │   │   ├── terminal.cpp    # Text mode terminal (what you have now)
+    │   │   └── fb.cpp      # (Pending) Framebuffer graphics
     │   ├── input/
     │   │   ├── kbd.cpp     # PS/2 Keyboard
-    │   │   └── mouse.cpp   # PS/2 Mouse
+    │   │   └── mouse.cpp   # (Pending) PS/2 Mouse
     │   └── timer/
-    │       └── pit.cpp     # Programmable Interval Timer (for scheduling)
+    │       └── pit.cpp     # (Pending) Programmable Interval Timer (for scheduling)
     │
     ├── lib/                # "klibc" - Kernel's version of standard libraries
     │   ├── string.cpp      # memcpy, memset, strlen
     │   ├── memory.cpp      # placement new operator overloads
-    │   └── structures/     # Your custom data structures
+    │   └── structures/     # (Pending) More custom data structures
     │       ├── vector.hpp
     │       └── bitmap.hpp  
     │
     └── user/               # User-space programs (Ring 3 - Added much later)
-        ├── libc/           # A minimal standard library for your apps
+        ├── libc/           # (Pending) A minimal standard library for your apps
         ├── apps/
-        │   ├── init/       # The first user process (starts the system)
+        │   ├── init/       # (Pending) The first user process (starts the system)
         │   └── shell/      # The interactive command line
         └── gui/
-            ├── wm.cpp      # Window Manager
-            └── desktop.cpp # The graphical desktop environment
+            ├── wm.cpp      # (Pending) Window Manager
+            └── desktop.cpp # (Pending) The graphical desktop environment
 
 Building and Execution
 Prerequisites
