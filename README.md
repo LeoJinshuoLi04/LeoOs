@@ -27,58 +27,58 @@ Project Structure
 LeoOS/
 ├── Makefile                
 │
-└── src/                    # All Source Code
+└── src/                      # All Source Code
     │
-    ├── arch/               # Architecture-specific code (Hardware tied)
-    │   └── i386/           # 32-bit x86 specific files
-    │       ├── linker.ld   # Linker script
-    │       ├── boot.s      # Multiboot header and _start
-    │       ├── gdt.s       # Assembly stub for GDT loading
-    │       ├── interrupt.s # Assembly stubs for ISRs (pusha, iret)
-    │       ├── gdt.cpp     # Global Descriptor Table setup
-    │       ├── idt.cpp     # Interrupt Descriptor Table setup
-    │       ├── pic.cpp     # 8259 Programmable Interrupt Controller (Remap)
-    │       └── ports.cpp   # inb, outb (I/O port communication)
+    ├── arch/                  # Architecture-specific code (Hardware tied)
+    │   └── i386/              # 32-bit x86 specific files
+    │       ├── gdt            # Global Descriptor Table setup
+    │       ├── idt            # Interrupt Descriptor Table setup
+    │       ├── pic            # 8259 Programmable Interrupt Controller (Remap)
+    │       ├── linker.ld      # Linker script
+    │       ├── boot.s         # Multiboot header and _start
+    │       ├── interrupt.s    # Assembly stubs for ISRs (pusha, iret)
+    │       ├── multiboot.hpp  # Assembly stubs for ISRs (pusha, iret)
+    │       └── ports.cpp      # inb, outb (I/O port communication)
     │
-    ├── kernel/             # Architecture-agnostic core OS logic
-    │   ├── main.cpp        # kernel_main()
+    ├── kernel/                # Architecture-agnostic core OS logic
+    │   ├── main.cpp           # kernel_main()
     │   ├── memory/         
-    │   │   ├── pmm.cpp     # Physical Memory Manager (Bitmap)
-    │   │   ├── vmm.cpp     # (Pending) Virtual Memory Manager (Paging)
-    │   │   └── heap.cpp    # (Pending) kmalloc/kfree (Dynamic memory)
+    │   │   ├── pmm.cpp        # Physical Memory Manager (Bitmap)
+    │   │   ├── vmm.cpp        # (Pending) Virtual Memory Manager (Paging)
+    │   │   └── heap.cpp       # (Pending) kmalloc/kfree (Dynamic memory)
     │   ├── cpu/
-    │   │   └── isr.cpp     # (Pending) High-level C++ interrupt dispatcher
-    │   ├── task/           # (Pending) Scheduler
-    │   │   ├── process.cpp # (Pending) Process Control Blocks (PCB)
-    │   │   └── sched.cpp   # (Pending) Round-robin or priority scheduler
-    │   └── syscall/        # System Calls
-    │       └── syscall.cpp # (Pending) Ring 3 to Ring 0 gateway
+    │   │   └── isr.cpp        # High-level C++ interrupt dispatcher
+    │   ├── task/              # (Pending) Scheduler
+    │   │   ├── process.cpp    # (Pending) Process Control Blocks (PCB)
+    │   │   └── sched.cpp      # (Pending) Round-robin or priority scheduler
+    │   └── syscall/           # System Calls
+    │       └── syscall.cpp    # (Pending) Ring 3 to Ring 0 gateway
     │
-    ├── drivers/            # Hardware drivers (Ring 0 for now, user space later)
+    ├── drivers/               # Hardware drivers (Ring 0 for now, user space later)
     │   ├── vga/
-    │   │   ├── terminal.cpp    # Text mode terminal (what you have now)
-    │   │   └── fb.cpp      # (Pending) Framebuffer graphics
+    │   │   ├── terminal.cpp   # Text mode terminal (what you have now)
+    │   │   └── fb.cpp         # (Pending) Framebuffer graphics
     │   ├── input/
-    │   │   ├── kbd.cpp     # PS/2 Keyboard
-    │   │   └── mouse.cpp   # (Pending) PS/2 Mouse
+    │   │   ├── kbd.cpp        # PS/2 Keyboard
+    │   │   └── mouse.cpp      # (Pending) PS/2 Mouse
     │   └── timer/
-    │       └── pit.cpp     # (Pending) Programmable Interval Timer (for scheduling)
+    │       └── pit.cpp        # (Pending) Programmable Interval Timer (for scheduling)
     │
-    ├── lib/                # "klibc" - Kernel's version of standard libraries
-    │   ├── string.cpp      # memcpy, memset, strlen
-    │   ├── memory.cpp      # placement new operator overloads
-    │   └── structures/     # (Pending) More custom data structures
+    ├── lib/                   # "klibc" - Kernel's version of standard libraries
+    │   ├── string.cpp         # memcpy, memset, strlen
+    │   ├── memory.cpp         # placement new operator overloads
+    │   └── structures/        # (Pending) More custom data structures
     │       ├── vector.hpp
     │       └── bitmap.hpp  
     │
-    └── user/               # User-space programs (Ring 3 - Added much later)
-        ├── libc/           # (Pending) A minimal standard library for your apps
+    └── user/                  # User-space programs (Ring 3 - Added much later)
+        ├── libc/              # (Pending) A minimal standard library for your apps
         ├── apps/
-        │   ├── init/       # (Pending) The first user process (starts the system)
-        │   └── shell/      # The interactive command line
+        │   ├── init/          # (Pending) The first user process (starts the system)
+        │   └── shell/         # The interactive command line
         └── gui/
-            ├── wm.cpp      # (Pending) Window Manager
-            └── desktop.cpp # (Pending) The graphical desktop environment
+            ├── wm.cpp         # (Pending) Window Manager
+            └── desktop.cpp    # (Pending) The graphical desktop environment
 
 Building and Execution
 Prerequisites
