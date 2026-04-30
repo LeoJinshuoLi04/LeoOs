@@ -12,8 +12,6 @@ VGA Text Driver: An object-oriented C++ driver for the 0xB8000 video buffer. It 
 
 Port I/O: Implementation of inline assembly wrappers for inb and outb instructions, enabling safe communication with motherboard hardware peripherals.
 
-Interrupt Service Routines (ISR): Assembly stubs serve as low-level bridges, preserving CPU state and registers before delegating execution to high-level C++ logic.
-
 Fault Tolerance: Includes specialized handlers for synchronous CPU exceptions (e.g., Division by Zero) to ensure system stability during runtime errors.
 
 Project Structure
