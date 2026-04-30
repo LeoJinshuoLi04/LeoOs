@@ -7,13 +7,6 @@ Multiboot Compliance: The kernel utilizes a custom Assembly entry point compatib
 
 Linker Configuration: A custom linker script manages the physical and virtual address layout, ensuring the Multiboot header resides within the first 8KB of the binary.
 
-Hardware Abstraction
-VGA Text Driver: An object-oriented C++ driver for the 0xB8000 video buffer. It supports character-attribute mapping and features a software-based scrolling algorithm to handle vertical overflow.
-
-Port I/O: Implementation of inline assembly wrappers for inb and outb instructions, enabling safe communication with motherboard hardware peripherals.
-
-Fault Tolerance: Includes specialized handlers for synchronous CPU exceptions (e.g., Division by Zero) to ensure system stability during runtime errors.
-
 Project Structure
 LeoOS/
 ├── Makefile                
