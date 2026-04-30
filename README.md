@@ -5,8 +5,6 @@ Technical Overview
 Boot and Memory Management
 Multiboot Compliance: The kernel utilizes a custom Assembly entry point compatible with the Multiboot specification, allowing it to be loaded by GRUB or QEMU.
 
-Global Descriptor Table (GDT): Configured a flat 32-bit memory model. This establishes kernel-level code and data segments, which are necessary for memory protection and future user-mode transitions.
-
 Linker Configuration: A custom linker script manages the physical and virtual address layout, ensuring the Multiboot header resides within the first 8KB of the binary.
 
 Hardware Abstraction

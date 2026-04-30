@@ -2,11 +2,13 @@
 #include <stdint.h>
 
 struct gdt_entry {
-    uint16_t limit_low;
-    uint16_t base_low;
+    uint16_t limit_low;      //specifies length of segment combined with granularity
+    uint16_t base_low;       //specifies starting address of segment with base_middle and base_high
     uint8_t  base_middle;
-    uint8_t  access;
-    uint8_t  granularity;
+    uint8_t  access;         // see README for details
+    uint8_t  granularity;    // comprised of size bit and granularity bit
+                             // granularity bit = 1 means limit is in 4KB blocks else 1 byte
+                             // size bit = 1 means 32-bit , = 0 means 16 bit segment
     uint8_t  base_high;
 } __attribute__((packed));
 

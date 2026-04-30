@@ -26,10 +26,6 @@ GDT::GDT(){
     pointer.base  = (uint32_t)&entries;
 }
 
-void GDT::load() {
-    gdt_flush((uint32_t)&pointer);
-}
-
 void GDT::set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran){
   entries[num].base_low = base & 0xFFFF;
   entries[num].base_middle = base >> 16 & 0xFF;
@@ -41,4 +37,8 @@ void GDT::set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8
 
   entries[num].granularity = (limit >> 16) & 0x0F; // Get bits 16-19
   entries[num].granularity |= (gran & 0xF0);
+}
+
+void GDT::load() {
+    gdt_flush((uint32_t)&pointer);
 }

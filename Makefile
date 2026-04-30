@@ -16,7 +16,7 @@ ASM_SOURCES := $(shell find $(SRC_DIR) -name '*.s')
 # 2. GENERATE OBJECT FILE LIST
 # This maps 'structures/string/string.cpp' to 'build/structures/string/string.o'
 OBJ := $(CPP_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-OBJ += $(ASM_SOURCES:%.s=$(BUILD_DIR)/%.o)
+OBJ += $(ASM_SOURCES:%.s=$(BUILD_DIR)/%.asm.o)
 
 # 3. INCLUDE PATHS
 # Finds all directories in src and structures to allow shorthand includes
@@ -44,7 +44,7 @@ $(BUILD_DIR)/%.o: %.cpp
 	@$(CPP) $(CPPFLAGS) -c $< -o $@
 
 # Pattern rule for Assembly files
-$(BUILD_DIR)/%.o: %.s
+$(BUILD_DIR)/%.asm.o: %.s
 	@mkdir -p $(@D)
 	@echo "Assembling $<"
 	@$(AS) $< -o $@
@@ -54,5 +54,10 @@ run: all
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+debug:
+	@echo "CPP Files: $(CPP_SOURCES)"
+	@echo "ASM Files: $(ASM_SOURCES)"
+	@echo "Object Files: $(OBJ)"
 
 .PHONY: all clean run
