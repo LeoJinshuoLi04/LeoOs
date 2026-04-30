@@ -8,8 +8,8 @@ GDT is a custom mapping for different access levels that we have, it is essentia
 4 - User data segment       User data
 
 It limits access to memory based on access level, which we set as:
-bit 7         Present - will trigger fault if accessed
-bits 6 & 5    privilege bits - 00 for kernel access and 11 for user
+bit 7         Present - if it has been set
+bits 6 & 5    Privilege bits - 00 for kernel access and 11 for user
 bit 4         System - 1 for code/data segments 0 for system segments
 bit 3         Executable - 1 if runnable, 0 if data
 bit 2         Direction - For data: 0 means grows up, 1 means grows down
