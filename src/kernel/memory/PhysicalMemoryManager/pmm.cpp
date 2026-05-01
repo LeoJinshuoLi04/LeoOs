@@ -4,21 +4,14 @@
 
 
 constexpr int PAGE_SIZE {4096}; //4Kb page size;
+extern "C" uint32_t _kernel_end;
 
-void PMM::init(multiboot_info* mbi, uint32_t* kernel_end) {
-    bitmap = kernel_end;
-    
-    // 1. Calculate total possible blocks based on RAM reporting
-    uint32_t total_mem = (mbi->mem_upper + 1024) * 1024; 
-    max_blocks = total_mem / PAGE_SIZE;
-    
-    // 2. Start by marking everything as USED (1)
-    for (uint32_t i = 0; i < max_blocks; i++) {
-        set_bit(i);
-    }
-    used_blocks = max_blocks;
 
-    // 3. Parse the mmap and FREE (0) the Type 1 regions
+void PMM::init(multiboot_info* mbi) {
+    bitmap = &_kernel_end;
+    *bitmap = 0xFFFF'FFFF; // marks all as used initially
+
+    // Parse the mmap and FREE (0) the Type 1 regions
     auto* entry = (multiboot_mmap_entry*)mbi->mmap_addr;
     while ((uint32_t)entry < mbi->mmap_addr + mbi->mmap_length) {
         if (entry->type == 1) { // 1 = Available RAM
@@ -27,10 +20,10 @@ void PMM::init(multiboot_info* mbi, uint32_t* kernel_end) {
         // Move to next entry using the 'size' field
         entry = (multiboot_mmap_entry*)((uint32_t)entry + entry->size + sizeof(entry->size));
     }
+    // set up total blocks and capacity, since we started with used_blocks = 0 and 'freed' all available blocks
+    max_blocks = -used_blocks;
+    used_blocks = 0;
 
-    // 4. Protect the Kernel and BIOS (0x0 to end of kernel + bitmap)
-    // You'll need to pass the kernel_end address or use the linker symbol
-    extern uint32_t _kernel_end;
     uint32_t kernel_resources_end = (uint32_t)&_kernel_end + 4096; // Kernel + Bitmap page
     set_region(0, kernel_resources_end);
 }

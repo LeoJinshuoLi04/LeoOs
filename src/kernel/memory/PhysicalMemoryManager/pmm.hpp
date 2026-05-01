@@ -11,7 +11,8 @@ private:
     uint32_t  last_free_block; // Optimization: Start searching for free blocks from here
 
 public:
-    void init(multiboot_info* mbi, uint32_t* kernel_end);
+    PMM() : bitmap(nullptr), max_blocks(0), used_blocks(0), last_free_block(0) {}
+    void init(multiboot_info* mbi);
     void free_region(uint32_t start, uint32_t len);
     void set_region(uint32_t start, uint32_t len);
     
