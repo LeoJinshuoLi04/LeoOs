@@ -39,8 +39,6 @@ bool string::operator==(const string& other) const {
 };
 
 char& string::operator[](int index){
-  static char dummy = ' ';
-  if(index < 0 || index >= length) return dummy;
   return mem[index];
 }
 

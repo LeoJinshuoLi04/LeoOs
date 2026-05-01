@@ -73,8 +73,6 @@ uint32_t PMM::get_used() const {
   return used_blocks * PAGE_SIZE;
 };
 
-
-
 void PMM::free_block(void* ptr){
   uint32_t addr = (uint32_t)ptr;
   uint32_t bit = addr / PAGE_SIZE;
