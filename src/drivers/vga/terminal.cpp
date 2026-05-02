@@ -108,7 +108,7 @@ void Terminal::write_dec(int n) {
     write(&buf[i]);
 }
 
-void Terminal::write_hex(uint32_t n){
+void Terminal::write_hex(uint64_t n){
     string hex = "0x";
     string translations = "0123456789ABCDEF";
     while(n){
