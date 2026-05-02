@@ -111,9 +111,13 @@ void Terminal::write_dec(int n) {
 void Terminal::write_hex(uint64_t n){
     string hex = "0x";
     string translations = "0123456789ABCDEF";
-    while(n){
-        hex.push_back(translations[n%16]);
+    string rHex = "";
+    for(int i = 0; i< 16; i++){
+        rHex.push_back(translations[n%16]);
         n/=16;
+    }
+    for(size_t i = 0; i< rHex.size(); ++i){
+        hex.push_back(rHex[rHex.size() - 1 - i]);
     }
     write(hex.cstr());
 }

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "src/arch/i386/multiboot.hpp"
 
+inline constexpr int PMM_PAGE_SIZE {4096}; //4Kb page size;
 class PMM {
 private:
     uint32_t* bitmap;      // Pointer to the bit array
