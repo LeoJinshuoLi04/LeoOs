@@ -9,10 +9,10 @@ private:
     uint32_t* bitmap;      // Pointer to the bit array
     uint32_t  max_blocks;  // Total number of 4KB blocks
     uint32_t  used_blocks; // Currently allocated blocks
-    uint32_t  last_free_block; // Optimization: Start searching for free blocks from here
+    uint32_t  last_free_bit; // Optimization: Start searching for free blocks from here
 
 public:
-    PMM() : bitmap(nullptr), max_blocks(0), used_blocks(0), last_free_block(0) {}
+    PMM() : bitmap(nullptr), max_blocks(0), used_blocks(0), last_free_bit(0) {}
     void init(multiboot_info* mbi);
     void free_region(uint32_t start, uint32_t len);
     void set_region(uint32_t start, uint32_t len);

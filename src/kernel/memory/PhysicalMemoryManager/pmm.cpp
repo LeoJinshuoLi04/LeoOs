@@ -36,11 +36,11 @@ void PMM::init(multiboot_info* mbi) {
       entryAddress += entry->size + sizeof(entry->size); //size is considered a header and is not include in size for multiboot 1
     }
 
-    uint32_t kernel_resources_end = _kernel_end + bitmapSize*4; //4 bytes per 32 bit integer
+    uint32_t kernel_resources_end = reinterpret_cast<uint32_t>(&_kernel_end) + bitmapSize*4 - 0xC000'0000;
     set_region(0, kernel_resources_end);
 
-    set_region(reinterpret_cast<uint32_t>(&mbi), sizeof(mbi));
-
+    set_region(reinterpret_cast<uint32_t>(&mbi), sizeof(multiboot_info));
+    
     set_region(mbi->mmap_addr, mbi->mmap_length);
 }
 
@@ -62,14 +62,14 @@ void PMM::set_region(uint32_t start, uint32_t len){
 
 void* PMM::alloc_block(){
   //start checking from last free block
-  for (uint32_t i = last_free_block /32 ; i < max_blocks / 32; i++) {
+  for (uint32_t i = last_free_bit /32 ; i < max_blocks / 32; i++) {
         // Optimization: If the whole uint32 is 0xFFFFFFFF, it's full; skip it
         if (bitmap[i] != 0xFFFF'FFFF) {
             for (uint32_t j = 0; j < 32; j++) {
                 uint32_t bit = i * 32 + j;
                 if (!test_bit(bit)) {
                     set_bit(bit);
-                    last_free_block = bit+1;
+                    last_free_bit = bit+1;
                     return (void*)(bit * PMM_PAGE_SIZE);
                 }
             }
@@ -100,7 +100,7 @@ void PMM::set_bit(uint32_t bit){
 };
 
 void PMM::clear_bit(uint32_t bit){
-  if(last_free_block > bit) last_free_block = bit;
+  if(last_free_bit > bit) last_free_bit = bit;
   if(test_bit(bit)){
     bitmap[bit / 32] &= ~(1 << (bit % 32));
     --used_blocks;

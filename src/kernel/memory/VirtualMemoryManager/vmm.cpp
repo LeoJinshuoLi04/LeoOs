@@ -7,8 +7,19 @@ extern Terminal* global_terminal;
 extern "C" void load_page_directory(uint32_t* pd_addr);
 extern "C" uint32_t _kernel_end;
 
+constexpr uint32_t KERNEL_VIRTUAL_BASE = 0xC0000000;
+
+inline uint32_t virtualFromPhysical(uint32_t physicalAddress){
+  return physicalAddress + KERNEL_VIRTUAL_BASE;
+}
+
+inline uint32_t physicalFromVirtual(uint32_t virtualAddress){
+  return virtualAddress - KERNEL_VIRTUAL_BASE;
+}
+
 VMM::VMM(PMM* pmm) : pmm(pmm){
-  pageDirectory = reinterpret_cast<PageDirectory*>(pmm->alloc_block());
+  uint32_t allocatedAddress = reinterpret_cast<uint32_t>(pmm->alloc_block());
+  pageDirectory = reinterpret_cast<PageDirectory*>(virtualFromPhysical(allocatedAddress));
 };
 
 void VMM::init(){
@@ -21,20 +32,19 @@ void VMM::init(){
   }
 
   // // create temporary identiy mapping for kernel code to allow jump to virtual kernel address space
-  // for (auto i = 0; i< 16 * 1024 * 1024; i+= PMM_PAGE_SIZE){
-  //   mapPage(i,i, {1,1}); // present + writable
-  // }
+  for (auto i = 0; i< 16 * 1024 * 1024; i+= PMM_PAGE_SIZE){
+    mapPage(i,i, {1,1}); // present + writable
+  }
 
+  uint32_t physicalPageDirectory = physicalFromVirtual(reinterpret_cast<uint32_t>(pageDirectory));
   // call assembly stub to load the page directory and enable paging. After this point, all addresses are treated as virtual addresses
-  load_page_directory(reinterpret_cast<uint32_t*>(pageDirectory));
-
-  // delete temporary identity mapping : each table holds 1024 x 4KB = 4MB, so clear 4 entries
+  load_page_directory(reinterpret_cast<uint32_t*>(physicalPageDirectory));
+  // // delete temporary identity mapping : each table holds 1024 x 4KB = 4MB, so clear 4 entries
   for(auto i = 0; i< 4; i++){
     pageDirectory->entries[i] = {};
   }
-
-  // flush CPU TLB by reloading page directory
-  load_page_directory(reinterpret_cast<uint32_t*>(pageDirectory));
+  // // flush CPU TLB by reloading page directory
+  load_page_directory(reinterpret_cast<uint32_t*>(physicalPageDirectory));
 };
 
 void VMM::mapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags){
@@ -42,13 +52,14 @@ void VMM::mapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags){
   uint32_t pd_index = get_pd_index(vAddress);
   PageDirectoryEntry& pageDirectoryEntry = pageDirectory->entries[pd_index];
   if(!pageDirectoryEntry.present){
-    auto* newTable = reinterpret_cast<PageTable*>(pmm->alloc_block());
+    uint32_t physicalAllocatedAddress = reinterpret_cast<uint32_t>(pmm->alloc_block());
+    auto* newTable = reinterpret_cast<PageTable*>(virtualFromPhysical(physicalAllocatedAddress));
 
     for(auto& entry : newTable->entries){
       entry = {};
     }
     pageDirectoryEntry.present = 1;
-    pageDirectoryEntry.table_addr = reinterpret_cast<uint32_t>(newTable) >> 12;
+    pageDirectoryEntry.table_addr = reinterpret_cast<uint32_t>(physicalAllocatedAddress) >> 12;
     pageDirectoryEntry.writable = flags.writable;
   };
 

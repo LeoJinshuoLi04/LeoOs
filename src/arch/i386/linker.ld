@@ -2,32 +2,31 @@ ENTRY(_start)
 
 SECTIONS
 {
-    /* The bootloader will look at this address to load the kernel */
-    . = 1M;
+    /* 1. Define the Virtual Address (VMA) */
+    /* We start at 3GB + 1MB to leave room for lower tables */
+    . = 0xC0100000;
 
-     _kernel_start = .;
+    /* 2. Start the sections */
+    _kernel_start = .;
 
-    /* First put the multiboot header, then the code */
-    .text BLOCK(4K) : ALIGN(4K)
+    /* The AT() command specifies the Physical Load Address (LMA) */
+    .text BLOCK(4K) : AT(ADDR(.text) - 0xC0000000)
     {
         *(.multiboot)
         *(.text)
     }
 
-    /* Read-only data */
-    .rodata BLOCK(4K) : ALIGN(4K)
+    .rodata BLOCK(4K) : AT(ADDR(.rodata) - 0xC0000000)
     {
         *(.rodata)
     }
 
-    /* Read-write data (initialized) */
-    .data BLOCK(4K) : ALIGN(4K)
+    .data BLOCK(4K) : AT(ADDR(.data) - 0xC0000000)
     {
         *(.data)
     }
 
-    /* Read-write data (uninitialized) and stack */
-    .bss BLOCK(4K) : ALIGN(4K)
+    .bss BLOCK(4K) : AT(ADDR(.bss) - 0xC0000000)
     {
         *(COMMON)
         *(.bss)

@@ -6,7 +6,7 @@ Terminal::Terminal() {
     row = 0;
     col = 0;
     color = 0x0F; // White on Black
-    buffer = (uint16_t*) 0xB8000;
+    buffer = (uint16_t*) 0xC00B8000;
     shell = nullptr;
     shellBuffer = "";
     clear();
@@ -16,7 +16,7 @@ Terminal::Terminal(Shell& shell) : shell(&shell){
     row = 0;
     col = 0;
     color = 0x0F; // White on Black
-    buffer = (uint16_t*) 0xB8000;
+    buffer = (uint16_t*) 0xC00B8000;
     shellBuffer = "";
     clear();
 }
