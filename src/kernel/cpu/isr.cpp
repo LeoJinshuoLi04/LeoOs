@@ -34,6 +34,10 @@ extern "C" void isr_handler(registers regs) {
         }
     } else if (regs.int_no == 32) {
       //do nothing.
+    } else {
+        global_terminal->write("interrupt unhandled: ");
+        global_terminal->write_dec(regs.err_code);
+        while(true) { asm volatile("cli; hlt"); } // Freeze!
     }
 
     // Send EOI to PICs
