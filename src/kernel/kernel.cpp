@@ -11,6 +11,9 @@ Terminal* global_terminal = nullptr; // Global pointer
 
 extern "C" void enable_interrupts();
 extern "C" uint32_t _kernel_start;
+extern "C" uint32_t _kernel_end;
+
+uint32_t g_kernelResourcesEnd = reinterpret_cast<uint32_t>(&_kernel_end);
 
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     Shell shell;

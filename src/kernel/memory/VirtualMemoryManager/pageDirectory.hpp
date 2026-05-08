@@ -8,11 +8,11 @@ struct [[gnu::packed]] PageTableEntry {
     uint32_t frame_addr : 20;  // The top 20 bits of the physical address
 };
 
-struct [[gnu::packed]] alignas(4096) PageTable {
+struct alignas(4096) PageTable {
     PageTableEntry entries[1024];
 };
 
-struct PageDirectoryEntry {
+struct [[gnu::packed]] PageDirectoryEntry {
     uint32_t present    : 1;
     uint32_t writable   : 1;
     uint32_t user       : 1;

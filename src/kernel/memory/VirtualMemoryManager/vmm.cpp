@@ -5,7 +5,8 @@
 extern Terminal* global_terminal;
 
 extern "C" void load_page_directory(uint32_t* pd_addr);
-extern "C" uint32_t _kernel_end;
+extern uint32_t g_kernelResourcesEnd;
+
 
 constexpr uint32_t KERNEL_VIRTUAL_BASE = 0xC0000000;
 
@@ -20,30 +21,26 @@ inline uint32_t physicalFromVirtual(uint32_t virtualAddress){
 VMM::VMM(PMM* pmm) : pmm(pmm){
   uint32_t allocatedAddress = reinterpret_cast<uint32_t>(pmm->alloc_block());
   pageDirectory = reinterpret_cast<PageDirectory*>(virtualFromPhysical(allocatedAddress));
+  g_kernelResourcesEnd = virtualFromPhysical(allocatedAddress) + 4096; // 4Kb page
 };
 
 void VMM::init(){
   for(auto& entry : pageDirectory->entries){
     entry = {};
   }
+
+  auto kernelResourceSize = g_kernelResourcesEnd - KERNEL_VIRTUAL_BASE;
   // map reserved 16MB of RAM to top 1GB of virtual memory (for kernel use)
-  for(uint32_t i = 0; i< 16 * 1024 * 1024; i+= PMM_PAGE_SIZE){
+  for(uint32_t i = 0; i< kernelResourceSize; i+= PMM_PAGE_SIZE){
     mapPage(0xC000'0000 | i, i, {1,1}); // present + writable
   }
 
-  // // create temporary identiy mapping for kernel code to allow jump to virtual kernel address space
-  for (auto i = 0; i< 16 * 1024 * 1024; i+= PMM_PAGE_SIZE){
-    mapPage(i,i, {1,1}); // present + writable
-  }
-
   uint32_t physicalPageDirectory = physicalFromVirtual(reinterpret_cast<uint32_t>(pageDirectory));
+
+  pageDirectory->entries[1023].table_addr = reinterpret_cast<uint32_t>(pageDirectory) >> 12;
+  pageDirectory->entries[1023].present = true;
+  pageDirectory->entries[1023].writable = true;
   // call assembly stub to load the page directory and enable paging. After this point, all addresses are treated as virtual addresses
-  load_page_directory(reinterpret_cast<uint32_t*>(physicalPageDirectory));
-  // // delete temporary identity mapping : each table holds 1024 x 4KB = 4MB, so clear 4 entries
-  for(auto i = 0; i< 4; i++){
-    pageDirectory->entries[i] = {};
-  }
-  // // flush CPU TLB by reloading page directory
   load_page_directory(reinterpret_cast<uint32_t*>(physicalPageDirectory));
 };
 

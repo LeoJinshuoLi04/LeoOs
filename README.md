@@ -28,8 +28,8 @@ LeoOS/
     │   ├── main.cpp           # kernel_main()
     │   ├── memory/         
     │   │   ├── pmm.cpp        # Physical Memory Manager (Bitmap)
-    │   │   ├── vmm.cpp        # (Pending) Virtual Memory Manager (Paging)
-    │   │   └── heap.cpp       # (Pending) kmalloc/kfree (Dynamic memory)
+    │   │   ├── vmm.cpp        # Virtual Memory Manager (Paging)
+    │   │   └── heap.cpp       # kmalloc/kfree (Dynamic memory)
     │   ├── cpu/
     │   │   └── isr.cpp        # High-level C++ interrupt dispatcher
     │   ├── task/              # (Pending) Scheduler

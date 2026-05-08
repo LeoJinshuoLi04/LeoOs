@@ -4,6 +4,7 @@
 #include "terminal.hpp"
 
 extern "C" uint32_t _kernel_end;
+extern uint32_t g_kernelResourcesEnd;
 extern Terminal* global_terminal;
 
 void PMM::init(multiboot_info* mbi) {
@@ -22,7 +23,7 @@ void PMM::init(multiboot_info* mbi) {
 
     uint32_t bitmapSize = (max_blocks + 31) / 32;
     
-    bitmap = reinterpret_cast<uint32_t*>(&_kernel_end);
+    bitmap = reinterpret_cast<uint32_t*>(g_kernelResourcesEnd);
     for(uint32_t i = 0; i< bitmapSize; ++i){ //clear bitmap;
       bitmap[i] = 0xFFFF'FFFF;
     }
@@ -36,11 +37,11 @@ void PMM::init(multiboot_info* mbi) {
       entryAddress += entry->size + sizeof(entry->size); //size is considered a header and is not include in size for multiboot 1
     }
 
-    uint32_t kernel_resources_end = reinterpret_cast<uint32_t>(&_kernel_end) + bitmapSize*4 - 0xC000'0000;
-    set_region(0, kernel_resources_end);
+    g_kernelResourcesEnd += bitmapSize*4 - 0xC000'0000;
+    set_region(0, g_kernelResourcesEnd);
 
     set_region(reinterpret_cast<uint32_t>(&mbi), sizeof(multiboot_info));
-    
+
     set_region(mbi->mmap_addr, mbi->mmap_length);
 }
 
