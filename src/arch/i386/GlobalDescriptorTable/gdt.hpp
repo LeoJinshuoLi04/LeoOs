@@ -26,3 +26,5 @@ private:
     gdt_entry entries[5];
     gdt_ptr pointer;
 };
+
+extern GDT globalDescriptorTable;

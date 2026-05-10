@@ -23,3 +23,5 @@ private:
     idt_entry entries[256];
     idt_ptr pointer;
 };
+
+extern IDT interruptDescriptorTable;

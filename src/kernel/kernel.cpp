@@ -25,10 +25,8 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
         T.write("\n");
         return;
     }
-    GDT gdt;
-    gdt.load();
-    IDT idt;
-    idt.load();
+    globalDescriptorTable.load();
+    interruptDescriptorTable.load();
     PMM pmm;
     pmm.init(mbi);
     pic_remap();

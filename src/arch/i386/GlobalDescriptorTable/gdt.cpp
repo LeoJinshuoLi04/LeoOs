@@ -3,8 +3,23 @@
 // External assembly function we defined in boot.s
 extern "C" void gdt_flush(uint32_t);
 
-GDT::GDT(){
-  // 1. The Null Descriptor (All zeros)
+GDT::GDT(){}
+
+void GDT::set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran){
+  entries[num].base_low = base & 0xFFFF;
+  entries[num].base_middle = base >> 16 & 0xFF;
+  entries[num].base_high = base >> 24 & 0xFF;
+
+  entries[num].limit_low = (limit & 0xFFFF);
+
+  entries[num].access = access;
+
+  entries[num].granularity = (limit >> 16) & 0x0F; // Get bits 16-19
+  entries[num].granularity |= (gran & 0xF0);
+}
+
+void GDT::load() {
+    // 1. The Null Descriptor (All zeros)
     set_gate(0, 0, 0, 0, 0);
 
     /* 2. Kernel Code Segment
@@ -24,21 +39,8 @@ GDT::GDT(){
     // Prepare the pointer for the LGDT instruction
     pointer.limit = (sizeof(gdt_entry) * 5) - 1;
     pointer.base  = (uint32_t)&entries;
-}
-
-void GDT::set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran){
-  entries[num].base_low = base & 0xFFFF;
-  entries[num].base_middle = base >> 16 & 0xFF;
-  entries[num].base_high = base >> 24 & 0xFF;
-
-  entries[num].limit_low = (limit & 0xFFFF);
-
-  entries[num].access = access;
-
-  entries[num].granularity = (limit >> 16) & 0x0F; // Get bits 16-19
-  entries[num].granularity |= (gran & 0xF0);
-}
-
-void GDT::load() {
+    
     gdt_flush((uint32_t)&pointer);
 }
+
+GDT globalDescriptorTable;
