@@ -1,7 +1,7 @@
 #include "terminal.hpp"
-
-extern Terminal* global_terminal; // Global pointer
-
+#include "src/arch/i386/ports.hpp"
+#include "terminal.hpp"
+#include "keyboard.hpp"
 
 struct registers {
     uint32_t ds;                  // Data segment selector
@@ -10,33 +10,26 @@ struct registers {
     uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor automatically
 };
 
-// src/isr.cpp
-#include "src/arch/i386/ports.hpp"
-#include "terminal.hpp"
-#include "keyboard.hpp"
-
-extern Terminal* global_terminal;
-
 extern "C" void isr_handler(registers regs) {
     if (regs.int_no == 33) {
         uint8_t scancode = inb(0x60);
         if (scancode & 0x80) {
             // Handle key release if necessary (e.g., releasing Shift)
         }else if(scancode == 0x0E){
-            global_terminal->backspace();
+            terminal.backspace();
         }else if(scancode == 0x1C) {
-            global_terminal->execute();
+            terminal.execute();
         } else {
             unsigned char c = kbd_us[scancode];
-            if (c > 0 && global_terminal) {
-                global_terminal->put_user_char(c);
+            if (c > 0) {
+                terminal.put_user_char(c);
             }
         }
     } else if (regs.int_no == 32) {
       //do nothing.
     } else {
-        global_terminal->write("interrupt unhandled: ");
-        global_terminal->write_dec(regs.err_code);
+        terminal.write("interrupt unhandled: ");
+        terminal.write_dec(regs.err_code);
         while(true) { asm volatile("cli; hlt"); } // Freeze!
     }
 

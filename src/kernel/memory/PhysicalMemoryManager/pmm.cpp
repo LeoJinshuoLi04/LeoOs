@@ -4,7 +4,6 @@
 #include "terminal.hpp"
 
 extern "C" uint32_t _kernel_end;
-extern Terminal* global_terminal;
 
 void PMM::init(multiboot_info* mbi) {
     // Parse multiboot memory map to determine total RAM to initialise bitmap with
@@ -74,7 +73,7 @@ void* PMM::alloc_block(){
             }
         }
     }
-    global_terminal->write("PMM: Out of memory!\n"); //TODO: implement exception for this instead of just write;
+    terminal.write("PMM: Out of memory!\n"); //TODO: implement exception for this instead of just write;
     return nullptr;
 };
 

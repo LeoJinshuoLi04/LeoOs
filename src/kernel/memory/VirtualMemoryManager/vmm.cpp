@@ -2,8 +2,6 @@
 #include "terminal.hpp"
 #include "pmm.hpp"
 
-extern Terminal* global_terminal;
-
 extern "C" void load_page_directory(uint32_t* pd_addr);
 
 constexpr uint32_t KERNEL_VIRTUAL_BASE = 0xC0000000;
@@ -55,9 +53,9 @@ void VMM::initMapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags){
     pageTableEntry.writable = flags.writable;
     pageTableEntry.frame_addr = pAddress >> 12;
   }else{
-    global_terminal->write("Overriding existing mapping with virtual address: 0x");
-    global_terminal->write_hex(vAddress);
-    global_terminal->write("\n");
+    terminal.write("Overriding existing mapping with virtual address: 0x");
+    terminal.write_hex(vAddress);
+    terminal.write("\n");
   }
 };
 

@@ -37,3 +37,5 @@ private:
     Shell* shell;
     string shellBuffer;
 };
+
+extern Terminal terminal;

@@ -140,3 +140,5 @@ void Terminal::scroll() {
         buffer[i] = make_vga_entry(' ', color);
     }
 }
+
+Terminal terminal;
