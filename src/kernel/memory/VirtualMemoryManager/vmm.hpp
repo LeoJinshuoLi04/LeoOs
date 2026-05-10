@@ -11,11 +11,9 @@ struct [[gnu::packed]] VMMFlags {
 class VMM {
   private:
     PageDirectory* pageDirectory;
-    PMM* pmm;
     void initMapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags);
   public:
-    VMM() = delete;
-    VMM(PMM* pmm);
+    VMM();
     void init();
     void mapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags);
     void unmapPage(uint32_t vAddress);
@@ -38,3 +36,5 @@ namespace VMMUtils {
       return entry_addr_field << 12;
   }
 }
+
+extern VMM virtualMemoryManager;

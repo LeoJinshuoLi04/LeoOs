@@ -5,17 +5,16 @@
 extern Terminal* global_terminal;
 
 extern "C" void load_page_directory(uint32_t* pd_addr);
-extern uint32_t g_kernelResourcesEnd;
 
 constexpr uint32_t KERNEL_VIRTUAL_BASE = 0xC0000000;
 
-VMM::VMM(PMM* pmm) : pmm(pmm){
-  uint32_t allocatedAddress = reinterpret_cast<uint32_t>(pmm->alloc_block());
-  pageDirectory = reinterpret_cast<PageDirectory*>(allocatedAddress + KERNEL_VIRTUAL_BASE);
-  g_kernelResourcesEnd = allocatedAddress + KERNEL_VIRTUAL_BASE + 4096; // 4Kb page
-};
+VMM::VMM(){};
 
 void VMM::init(){
+  uint32_t allocatedAddress = reinterpret_cast<uint32_t>(physicalMemoryManager.alloc_block());
+  pageDirectory = reinterpret_cast<PageDirectory*>(allocatedAddress + KERNEL_VIRTUAL_BASE);
+  uint32_t vmmEnd = allocatedAddress + 4096; // 4Kb page
+
   for(auto& entry : pageDirectory->entries){
     entry = {};
   }
@@ -25,9 +24,8 @@ void VMM::init(){
   pageDirectory->entries[1023].present = true;
   pageDirectory->entries[1023].writable = true;
 
-  auto kernelResourceSize = g_kernelResourcesEnd - KERNEL_VIRTUAL_BASE;
   // map reserved 16MB of RAM to top 1GB of virtual memory (for kernel use)
-  for(uint32_t i = 0; i< kernelResourceSize; i+= PMM_PAGE_SIZE){
+  for(uint32_t i = 0; i< vmmEnd; i+= PMM_PAGE_SIZE){
     initMapPage(0xC000'0000 | i, i, {1,1}); // present + writable
   }
   // call assembly stub to load the page directory and enable paging. After this point, all addresses are treated as virtual addresses
@@ -39,7 +37,7 @@ void VMM::initMapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags){
   uint32_t pageDirectoryIndex = get_pd_index(vAddress);
   PageDirectoryEntry& pageDirectoryEntry = pageDirectory->entries[pageDirectoryIndex];
   if(!pageDirectoryEntry.present){
-    uint32_t physicalAllocatedAddress = reinterpret_cast<uint32_t>(pmm->alloc_block());
+    uint32_t physicalAllocatedAddress = reinterpret_cast<uint32_t>(physicalMemoryManager.alloc_block());
     auto* newTable = reinterpret_cast<PageTable*>(physicalAllocatedAddress + KERNEL_VIRTUAL_BASE);
     for(auto& entry : newTable->entries){
       entry = {};
@@ -73,7 +71,7 @@ void VMM::mapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags) {
 
     if (!pageDirectoryEntry->present) {
         // TABLE NOT PRESENT: We must create it.
-        uint32_t pageTableAddress = reinterpret_cast<uint32_t>(pmm->alloc_block());
+        uint32_t pageTableAddress = reinterpret_cast<uint32_t>(physicalMemoryManager.alloc_block());
         pageDirectoryEntry->table_addr = pageTableAddress >> 12;
         pageDirectoryEntry->present = true;
         pageDirectoryEntry->writable = true;
@@ -114,3 +112,5 @@ uint32_t VMM::translate(uint32_t vAddress){
 
   return (pageTable->entries[pt_index].frame_addr << 12) | (vAddress & 0xFFF); // Combine frame address with page offset
 };
+
+VMM virtualMemoryManager;

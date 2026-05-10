@@ -13,8 +13,6 @@ extern "C" void enable_interrupts();
 extern "C" uint32_t _kernel_start;
 extern "C" uint32_t _kernel_end;
 
-uint32_t g_kernelResourcesEnd = reinterpret_cast<uint32_t>(&_kernel_end);
-
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     Shell shell;
     Terminal T(shell);
@@ -27,16 +25,14 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     }
     globalDescriptorTable.load();
     interruptDescriptorTable.load();
-    PMM pmm;
-    pmm.init(mbi);
+    physicalMemoryManager.init(mbi);
+    virtualMemoryManager.init();
     pic_remap();
-    VMM vmm(&pmm);
-    vmm.init();
     enable_interrupts();
     T.write("Leo OS: ");
-    T.write_dec(pmm.get_used()/1024);
+    T.write_dec(physicalMemoryManager.get_used()/1024);
     T.write("/");
-    T.write_dec(pmm.get_capacity()/1024);
+    T.write_dec(physicalMemoryManager.get_capacity()/1024);
     T.write(" KB RAM Used\n");
     T.write(">> ");
     while(1);

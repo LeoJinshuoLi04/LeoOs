@@ -30,3 +30,5 @@ public:
     void clear_bit(uint32_t bit);
     bool test_bit(uint32_t bit) const;
 };
+
+extern PMM physicalMemoryManager;
