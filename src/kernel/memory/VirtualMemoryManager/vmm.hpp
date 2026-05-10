@@ -12,6 +12,7 @@ class VMM {
   private:
     PageDirectory* pageDirectory;
     PMM* pmm;
+    void initMapPage(uint32_t vAddress, uint32_t pAddress, VMMFlags flags);
   public:
     VMM() = delete;
     VMM(PMM* pmm);
