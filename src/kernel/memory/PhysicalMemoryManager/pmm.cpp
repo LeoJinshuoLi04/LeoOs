@@ -21,7 +21,7 @@ void PMM::init(multiboot_info* mbi) {
 
     uint32_t bitmapSize = (max_blocks + 31) / 32;
     
-    bitmap = reinterpret_cast<uint32_t*>(_kernel_end);
+    bitmap = reinterpret_cast<uint32_t*>(&_kernel_end);
     for(uint32_t i = 0; i< bitmapSize; ++i){ //clear bitmap;
       bitmap[i] = 0xFFFF'FFFF;
     }

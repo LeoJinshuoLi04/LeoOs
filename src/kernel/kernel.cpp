@@ -6,12 +6,18 @@
 #include "src/arch/i386/multiboot.hpp"
 #include "pmm.hpp"
 #include "vmm.hpp"
+#include "HeapAllocator.hpp"
 
 Terminal* global_terminal = nullptr; // Global pointer
 
 extern "C" void enable_interrupts();
-extern "C" uint32_t _kernel_start;
-extern "C" uint32_t _kernel_end;
+
+void printMemory(){
+    global_terminal->write_dec(physicalMemoryManager.get_used()/1024);
+    global_terminal->write("/");
+    global_terminal->write_dec(physicalMemoryManager.get_capacity()/1024);
+    global_terminal->write(" KB RAM Used\n");
+}
 
 extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     Shell shell;
@@ -27,13 +33,11 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     interruptDescriptorTable.load();
     physicalMemoryManager.init(mbi);
     virtualMemoryManager.init();
+    heapAllocator.init();
     pic_remap();
     enable_interrupts();
     T.write("Leo OS: ");
-    T.write_dec(physicalMemoryManager.get_used()/1024);
-    T.write("/");
-    T.write_dec(physicalMemoryManager.get_capacity()/1024);
-    T.write(" KB RAM Used\n");
+    printMemory();
     T.write(">> ");
     while(1);
 }
