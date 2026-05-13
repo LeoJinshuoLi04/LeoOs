@@ -1,5 +1,7 @@
 #include "idt.hpp"
 
+extern "C" void timerInterruptHandler();
+
 extern "C" {
     void isr0();
     void isr1();
@@ -69,6 +71,8 @@ void IDT::load() {
                  0x08,
                  0x8E);
     }
+
+    set_gate(32, reinterpret_cast<uint32_t>(timerInterruptHandler), 0x08, 0x8E);
 
     idt_load((uint32_t)&pointer);
 }

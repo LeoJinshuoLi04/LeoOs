@@ -25,8 +25,6 @@ extern "C" void isr_handler(registers regs) {
                 terminal.put_user_char(c);
             }
         }
-    } else if (regs.int_no == 32) {
-      //do nothing.
     } else {
         terminal.write("interrupt unhandled: ");
         terminal.write_dec(regs.err_code);

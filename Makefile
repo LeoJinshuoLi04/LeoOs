@@ -55,6 +55,9 @@ run: all
 clean:
 	rm -rf $(BUILD_DIR)
 
+run debug:
+	qemu-system-i386 -kernel build/myos.bin -d int -D qemu.log -no-reboot
+
 debug:
 	@echo "CPP Files: $(CPP_SOURCES)"
 	@echo "ASM Files: $(ASM_SOURCES)"

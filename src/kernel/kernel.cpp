@@ -7,10 +7,13 @@
 #include "pmm.hpp"
 #include "vmm.hpp"
 #include "HeapAllocator.hpp"
+#include "scheduler.hpp"
+
 
 Terminal* global_terminal = nullptr; // Global pointer
 
 extern "C" void enable_interrupts();
+extern void timer_init(uint32_t hz);
 
 void printMemory(){
     global_terminal->write_dec(physicalMemoryManager.get_used()/1024);
@@ -34,6 +37,8 @@ extern "C" void kernel_main(uint32_t magic, multiboot_info* mbi) {
     physicalMemoryManager.init(mbi);
     virtualMemoryManager.init();
     heapAllocator.init();
+    scheduler.init();
+    timer_init(1);
     pic_remap();
     enable_interrupts();
     T.write("Leo OS: ");
