@@ -4,29 +4,37 @@
 
 extern Terminal* global_terminal;
 
-volatile int taskCounter{0};
+volatile int taskCounter = 0; // Must be volatile!
 
-void idleFunction(){
-  global_terminal->write("Idle task running...\n");
-  while(true){
-    if(!taskCounter) global_terminal->write("Idle task running...\n");
-    taskCounter = 1;
-    while(taskCounter);
+void idleFunction (){
+  while (true) 
+    asm volatile("hlt");
+};
+
+void FunctionA() {
+  while(true) {
+    global_terminal->write("A ");
+    for(volatile int i = 0; i < 10000000; i++);
   }
 }
 
-void idleFunction2() {
-  global_terminal->write("Idle task 2 running...\n");
-  while(true){
-    if(taskCounter) global_terminal->write("Idle task 2 running...\n");
-    taskCounter = 0;
-    while(!taskCounter);
+void FunctionB() {
+  while(true) {
+    global_terminal->write("B ");
+    for(volatile int i = 0; i < 10000000; i++);
   }
 }
 
 void RoundRobinScheduler::init(){
-  createTask(reinterpret_cast<uint32_t>(&idleFunction));
-  createTask(reinterpret_cast<uint32_t>(&idleFunction2));
+  using namespace memory;
+  auto kernelTaskPCB = construct<ProcessControlBlock>();
+  kernelTaskPCB->processId = 0;
+  kernelTaskPCB->state = ProcessControlBlock::ProcessState::running;
+  currentProcess = kernelTaskPCB;
+  idleProcess = createTask(reinterpret_cast<uint32_t>(&idleFunction));
+
+  createTask(reinterpret_cast<uint32_t>(&FunctionA));
+  createTask(reinterpret_cast<uint32_t>(&FunctionB));
 };
 
 ProcessControlBlock* RoundRobinScheduler::createTask(uint32_t functionAddress) {
@@ -67,8 +75,10 @@ ProcessControlBlock* RoundRobinScheduler::createTask(uint32_t functionAddress) {
 
 void RoundRobinScheduler::addTask(ProcessControlBlock* pcb){
   if(!readyQueue){
-    if(!currentProcess) currentProcess = pcb;
-    else readyQueue = pcb;
+    global_terminal->write("Adding process ");
+    readyQueue = pcb;
+    global_terminal->write_dec(currentProcess->processId);
+    global_terminal->write("to ready queue");
   }else{
     auto current = readyQueue;
     while(current->next){
@@ -101,20 +111,35 @@ void RoundRobinScheduler::freeTaskMemory(ProcessControlBlock* pcb){
 }
 
 ProcessControlBlock* RoundRobinScheduler::scheduleNextTask(){
-  global_terminal->write("Scheduling next task...\n");
-  if(!readyQueue) return currentProcess;
   global_terminal->write("Switching from process ");
   global_terminal->write_dec(currentProcess->processId);
-  auto current = readyQueue;
-  while(current->next){
-    current = current->next;
+  // append to readyQueue;
+  if(currentProcess->processId > 1)[[likely]]{
+    if(!readyQueue){
+      readyQueue = currentProcess;
+      readyQueue->next = nullptr;
+    } else {
+      auto current = readyQueue;
+      while(current->next){
+        current = current->next;
+      }
+      current->next = currentProcess;
+    }
+  }else if(currentProcess->processId == 0){
+    heapAllocator.lfree(currentProcess);
   }
-  current->next = currentProcess;
+
+  //Get next task from queue or idleTask;
+  if(!readyQueue){
+    currentProcess = idleProcess;
+  } else {
+    currentProcess = readyQueue;
+    readyQueue = readyQueue->next;
+    currentProcess->next = nullptr;
+  }
   global_terminal->write(" to process ");
-  global_terminal->write_dec(readyQueue->processId);
-  currentProcess = readyQueue;
-  readyQueue = readyQueue->next;
-  currentProcess->next = nullptr;
+  global_terminal->write_dec(currentProcess->processId);
+  global_terminal->write("\n");
   return currentProcess;
 };
   

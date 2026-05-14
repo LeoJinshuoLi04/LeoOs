@@ -6,6 +6,7 @@ class RoundRobinScheduler {
   public:
     ProcessControlBlock* currentProcess = nullptr;
     ProcessControlBlock* readyQueue = nullptr;
+    ProcessControlBlock* idleProcess = nullptr;
     RoundRobinScheduler(){};
     void init();
     ProcessControlBlock* createTask(const uint32_t functionAddress);
