@@ -55,7 +55,7 @@ run: all
 clean:
 	rm -rf $(BUILD_DIR)
 
-run debug:
+drun: all
 	qemu-system-i386 -kernel build/myos.bin -d int -D qemu.log -no-reboot
 
 debug:

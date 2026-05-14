@@ -22,11 +22,11 @@ class HeapAllocator {
     void lfree(void* data);
 };
 
+extern HeapAllocator heapAllocator;
+
 namespace memory {
     template <typename T>
     T* construct() {
       return reinterpret_cast<T*>(heapAllocator.lalloc(sizeof(T)));
     }
 }
-
-extern HeapAllocator heapAllocator;
