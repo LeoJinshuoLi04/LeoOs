@@ -1,8 +1,5 @@
 #include "src/arch/i386/ports.hpp"
 #include "scheduler.hpp"
-#include "terminal.hpp"
-
-extern Terminal* global_terminal;
 
 void timer_init(uint32_t hz) {
     uint32_t divisor = 1193182 / hz;
@@ -20,7 +17,6 @@ extern "C" uint32_t pitHandler(uint32_t current_esp) {
     static int tickCount{0};
     if(++tickCount % 100 == 0){
         tickCount = 0;
-        global_terminal->write("Timer Interrupt: Scheduling next task...\n");
         scheduler.currentProcess->stackPointer = current_esp;
         return scheduler.scheduleNextTask()->stackPointer;
     }
